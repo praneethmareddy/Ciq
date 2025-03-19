@@ -8,6 +8,14 @@ ciq_folder = "path_to_your_ciq_files"  # Change this to your folder path
 # Get all Excel files
 ciq_files = glob(os.path.join(ciq_folder, "*.xlsx"))
 
+# Print the list of found files
+if not ciq_files:
+    print("No XLSX files found in the specified folder!")
+else:
+    print("Found the following XLSX files:")
+    for file in ciq_files:
+        print(f"- {os.path.basename(file)}")
+
 # List to store standardized dataframes
 dfs = []
 
@@ -29,15 +37,11 @@ for file in ciq_files:
     except Exception as e:
         print(f"Error reading {file}: {e}")
 
-# Merge all standardized CIQs
+# Ensure we have at least one valid CIQ before merging
 if dfs:
-    master_ciq = pd.concat(dfs, ignore_index=True, sort=False)  # Merge dataframes
+    master_ciq = pd.concat(dfs, ignore_index=True, sort=False)  # Merge all dataframes
     master_ciq.fillna("N/A", inplace=True)  # Fill missing values
+    master_ciq.to_excel("Master_CIQ.xlsx", index=False, encoding="utf-8")  # Save Master CIQ
+    print("\n✅ Master CIQ successfully created as 'Master_CIQ.xlsx'")
 else:
-    print("No valid CIQ files found!")
-    exit()
-
-# Save the Master CIQ as Excel
-master_ciq.to_excel("Master_CIQ.xlsx", index=False, encoding="utf-8")
-
-print("Master CIQ successfully created as 'Master_CIQ.xlsx'")
+    print("\n❌ No valid CIQ files found! Master CIQ was not created.")
