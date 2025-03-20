@@ -1,40 +1,21 @@
-import os
 import pandas as pd
 
-# Folder containing Excel files
-folder_path = "path_to_your_folder"
-csv_folder = os.path.join(folder_path, "converted_csvs")  # Temporary folder for CSVs
+# Path to your Excel file
+file_path = "path_to_your_file.xlsx"
 
-# Ensure CSV folder exists
-os.makedirs(csv_folder, exist_ok=True)
+# Read the Excel file
+df = pd.read_excel(file_path, engine="openpyxl", header=None)  # Read without assuming a header
 
-# Set to store unique column names
+# Collect all unique column names from all rows
 unique_columns = set()
-
-# Convert Excel to CSV and extract columns
-for file in os.listdir(folder_path):
-    if file.endswith((".xlsx", ".xls")):
-        file_path = os.path.join(folder_path, file)
-        
-        # Read Excel file (with proper engine)
-        if file.endswith(".xlsx"):
-            df = pd.read_excel(file_path, engine="openpyxl")
-        else:  # .xls case
-            df = pd.read_excel(file_path, engine="xlrd")
-        
-        # Save as CSV
-        csv_file = os.path.join(csv_folder, file.replace(".xlsx", ".csv").replace(".xls", ".csv"))
-        df.to_csv(csv_file, index=False)
-
-        # Collect column names
-        unique_columns.update(df.columns)
+for row in df.values:  # Iterate over rows
+    unique_columns.update(str(item).strip() for item in row if pd.notna(item))  # Remove NaNs & whitespace
 
 # Convert to DataFrame
-unique_columns_df = pd.DataFrame({"Unique Columns": list(unique_columns)})
+master_ciq = pd.DataFrame({"Master CIQ Columns": list(unique_columns)})
 
-# Save unique columns to a new Excel file
-output_file = os.path.join(folder_path, "unique_columns.xlsx")
-unique_columns_df.to_excel(output_file, index=False, engine="openpyxl")
+# Save as new Excel file
+output_file = "master_ciq.xlsx"
+master_ciq.to_excel(output_file, index=False, engine="openpyxl")
 
-print(f"Converted Excel files to CSV in: {csv_folder}")
-print(f"Unique columns saved to: {output_file}")
+print(f"Master CIQ saved to: {output_file}")
