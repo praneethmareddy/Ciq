@@ -45,4 +45,8 @@ with open(text_file_path, "w") as f:
         f.write(f"Columns: {', '.join(columns)}\n")
         f.write("-" * 50 + "\n")
 
-print(f"Column names summary saved to {text_file_path}")
+# Save column names to a CSV file
+csv_file_path = os.path.join(ciq_folder, "ciq_columns_summary.csv")
+pd.DataFrame({"Unique Columns": unique_columns}).to_csv(csv_file_path, index=False)
+
+print(f"Column names summary saved to {text_file_path} and {csv_file_path}")
